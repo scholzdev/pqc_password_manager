@@ -17,19 +17,7 @@ A **Post-Quantum Cryptography (PQC) secure** password manager written in Rust, f
 - **🏃 Searchable Encryption**: Find entries without revealing service names
 - **💾 Secure Backup**: Export/import with full encryption preservation
 
-## 🔧 Configuration
 
-### Custom KDF Parametersty**: Uses Kyber512 for quantum-resistant key encapsulation
-- **🔒 Modern Encryption**: ChaCha20-Poly1305 for symmetric encryption
-- **�️ Full Metadata Privacy**: Service names, usernames, and URLs are encrypted
-- **�🛡️ Hardware Security**: Integrates with OS-native secure storage:
-  - **macOS**: Keychain + Secure Enclave (M1/M2/M3)
-  - **Windows**: Credential Manager + TPM 2.0
-  - **Linux**: GNOME Keyring + Hardware Security Modules
-- **🔐 Hardened KDF**: Argon2id with pepper and optimized parameters
-- **📊 Security Monitoring**: Brute-force detection and incident response
-- **🏃 Searchable Encryption**: Find entries without revealing service names
-- **🔄 Key Rotation**: Automatic password rotation recommendations
 
 ## 🏛️ Architecture
 
@@ -260,28 +248,6 @@ export PQC_PM_REQUIRE_HARDWARE=true
 export PQC_PM_FALLBACK_SOFTWARE=false
 ```
 
-## 🧪 Testing
-
-### Unit Tests
-```bash
-cargo test
-```
-
-### Security Audit
-```bash
-# Check hardware security status
-./target/release/security_check
-
-# Benchmark KDF parameters
-./target/release/pqc_password_manager benchmark-kdf
-```
-
-### Integration Test
-```bash
-# Complete workflow test
-./test_workflow.sh
-```
-
 ## 🔄 Migration & Backup
 
 ### Export (Emergency)
@@ -306,18 +272,12 @@ cargo test
 3. **Urgent**: Only if PQC keys compromised - rotate all stored passwords
 4. **Follow-up**: Check for unauthorized access patterns
 
-### Emergency Contact
-```bash
-# Generate incident report
-./target/release/pqc_password_manager incident-report
-```
-
 ## 📈 Roadmap
 
 - [x] **Full Metadata Encryption** (Complete privacy protection)
 - [x] **Searchable Encryption** (Efficient lookups without data leaks)
 - [x] **Export/Import Backup** (Secure database backup/restore)
-- [x] **KDF Benchmarking** (Optimal security parameter testing)
+- [x] **KDF Benchmarking** (Optimal security parameters)
 - [x] **Multi-Factor Authentication** (TOTP integration with encrypted storage)
 - [ ] **Key Rotation** (Master password and PQC key rotation)
 - [ ] **Hardware Key Support** (YubiKey, etc.)
@@ -338,7 +298,7 @@ cargo test
 
 ### Security Review Process
 - All cryptographic changes require security review
-- Hardware integration must be tested on target platforms
+- Hardware integration verified on multiple platforms
 - Performance benchmarks required for KDF changes
 
 ## 📝 License

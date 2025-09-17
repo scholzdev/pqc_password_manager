@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n🖥️  PLATFORM INFORMATION:");
     println!("   Operating System: {}", status.platform.os);
     println!("   Architecture: {}", status.platform.chip);
-    println!("   Secure Enclave: {}", if status.platform.secure_enclave { "✅ Verfügbar" } else { "❌ Nicht verfügbar" });
+    println!("   Secure Enclave: {}", if status.platform.secure_enclave { "✅ Available" } else { "❌ Not Available" });
     
     println!("\n🛡️  SECURITY FEATURES:");
     for feature in &status.security_features {
@@ -19,29 +19,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     println!("\n🔐 HARDWARE-BACKED STORAGE:");
     if status.hardware_backed {
-        println!("   ✅ Hardware Security Module aktiv");
-        println!("   🏆 MAXIMALE SICHERHEIT - Schlüssel sind hardware-geschützt!");
+        println!("   ✅ Hardware Security Module active");
+        println!("   🏆 MAXIMUM SECURITY - Keys are hardware-protected!");
     } else {
-        println!("   ⚠️  Software-Keyring wird verwendet");
-        println!("   💡 Empfehlung: Hardware Security Key für maximale Sicherheit");
+        println!("   ⚠️  Software keyring is being used");
+        println!("   💡 Recommendation: Use Hardware Security Key for maximum security");
     }
     
-    println!("\n📊 SICHERHEITSBEWERTUNG:");
+    println!("\n📊 SECURITY ASSESSMENT:");
     let security_score = calculate_security_score(&status);
-    println!("   Sicherheitsstufe: {}/10", security_score);
+    println!("   Security Level: {}/10", security_score);
     
     match security_score {
-        9..=10 => println!("   🏆 AUSGEZEICHNET - Militär-Grade Sicherheit"),
-        7..=8 => println!("   ✅ SEHR GUT - Enterprise-Grade Sicherheit"),
-        5..=6 => println!("   ⚠️ GUT - Standard-Sicherheit mit Verbesserungspotential"),
-        _ => println!("   ❌ VERBESSERUNG NÖTIG - Zusätzliche Sicherheitsmaßnahmen empfohlen"),
+        9..=10 => println!("   🏆 EXCELLENT - Military-Grade Security"),
+        7..=8 => println!("   ✅ VERY GOOD - Enterprise-Grade Security"),
+        5..=6 => println!("   ⚠️ GOOD - Standard security with room for improvement"),
+        _ => println!("   ❌ NEEDS IMPROVEMENT - Additional security measures recommended"),
     }
     
-    println!("\n💡 EMPFEHLUNGEN:");
+    println!("\n💡 RECOMMENDATIONS:");
     print_security_recommendations(&status);
     
-    // Teste Schlüssel-Speicherung (Demo)
-    println!("\n🧪 TESTE HARDWARE-SPEICHERUNG:");
+    // Test key storage (Demo)
+    println!("\n🧪 TESTING HARDWARE STORAGE:");
     test_key_storage(&storage)?;
     
     Ok(())
@@ -67,9 +67,9 @@ fn calculate_security_score(status: &pqc_password_manager::storage::SecurityStat
     
     // Platform-spezifische Features
     match status.platform.os.as_str() {
-        "macos" => score += 2, // macOS hat sehr gute Hardware-Integration
-        "windows" => score += 1, // Windows TPM ist gut aber weniger integriert
-        "linux" => score += 1, // Linux meist software-based
+        "macos" => score += 2, // macOS has excellent hardware integration
+        "windows" => score += 1, // Windows TPM is good but less integrated
+        "linux" => score += 1, // Linux mostly software-based
         _ => {},
     }
     
@@ -78,60 +78,60 @@ fn calculate_security_score(status: &pqc_password_manager::storage::SecurityStat
 
 fn print_security_recommendations(status: &pqc_password_manager::storage::SecurityStatus) {
     if !status.hardware_backed {
-        println!("   🔧 Hardware Security Key (YubiKey, etc.) verwenden");
+        println!("   🔧 Use Hardware Security Key (YubiKey, etc.)");
     }
     
     if !status.platform.secure_enclave {
-        println!("   💻 Upgrade auf neuere Hardware mit Secure Enclave/TPM 2.0");
+        println!("   💻 Upgrade to newer hardware with Secure Enclave/TPM 2.0");
     }
     
     match status.platform.os.as_str() {
         "macos" => {
-            println!("   🍎 Touch ID/Face ID für zusätzliche Biometrie aktivieren");
+            println!("   🍎 Enable Touch ID/Face ID for additional biometrics");
             if !status.platform.secure_enclave {
-                println!("   📱 Upgrade auf Apple Silicon (M1/M2/M3) für Secure Enclave");
+                println!("   📱 Upgrade to Apple Silicon (M1/M2/M3) for Secure Enclave");
             }
         },
         "windows" => {
-            println!("   🪟 Windows Hello für Biometrie aktivieren");
-            println!("   🔒 TPM 2.0 im BIOS aktivieren (falls verfügbar)");
+            println!("   🪟 Enable Windows Hello for biometrics");
+            println!("   🔒 Enable TPM 2.0 in BIOS (if available)");
         },
         "linux" => {
-            println!("   🐧 GNOME Keyring oder KDE Wallet konfigurieren");
-            println!("   🔐 Hardware Security Module (HSM) für maximale Sicherheit");
+            println!("   🐧 Configure GNOME Keyring or KDE Wallet");
+            println!("   🔐 Use Hardware Security Module (HSM) for maximum security");
         },
         _ => {},
     }
     
-    println!("   🔄 Regelmäßige Backup-Überprüfung der verschlüsselten Daten");
-    println!("   📱 Multi-Faktor-Authentifizierung (MFA) aktivieren");
+    println!("   🔄 Regular backup verification of encrypted data");
+    println!("   📱 Enable Multi-Factor Authentication (MFA)");
 }
 
 fn test_key_storage(storage: &SecureStorageManager) -> Result<(), Box<dyn std::error::Error>> {
-    println!("   🧪 Teste Schlüssel-Speicherung...");
+    println!("   🧪 Testing key storage...");
     
     let test_public_key = b"test_public_key_data_32_bytes!!!";
     let test_secret_key = b"test_secret_key_data_32_bytes!!!";
     
     match storage.store_pqc_keypair("test_keypair", test_public_key, test_secret_key) {
         Ok(_) => {
-            println!("   ✅ Schlüssel erfolgreich in Hardware-Storage gespeichert");
+            println!("   ✅ Key successfully stored in hardware storage");
             
-            // Versuche zu laden (wird aktuell noch fehlschlagen)
+            // Try to load (will currently still fail)
             match storage.load_pqc_keypair("test_keypair") {
                 Ok((pub_key, _sec_key)) => {
-                    println!("   ✅ Schlüssel erfolgreich aus Hardware-Storage geladen");
-                    println!("      Public Key: {}... ({}  bytes)", 
+                    println!("   ✅ Key successfully loaded from hardware storage");
+                    println!("      Public Key: {}... ({} bytes)", 
                         std::str::from_utf8(&pub_key[..8]).unwrap_or("binary"), pub_key.len());
                 },
                 Err(e) => {
-                    println!("   ⚠️ Schlüssel-Laden noch nicht implementiert: {}", e);
-                    println!("      (Das ist normal - vollständige Integration folgt)");
+                    println!("   ⚠️ Key loading not yet implemented: {}", e);
+                    println!("      (This is normal - complete integration follows)");
                 }
             }
         },
         Err(e) => {
-            println!("   ❌ Fehler beim Speichern: {}", e);
+            println!("   ❌ Error during storage: {}", e);
         }
     }
     
