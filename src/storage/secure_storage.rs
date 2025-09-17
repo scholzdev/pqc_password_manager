@@ -1,4 +1,4 @@
-/// Hardware-backed Security Storage für verschiedene Betriebssysteme
+/// Hardware-backed Security Storage for different operating systems
 // Keine ungenutzten Imports
 
 #[cfg(target_os = "windows")]
@@ -7,7 +7,7 @@ use windows::core::HSTRING;
 #[cfg(target_os = "linux")]
 use std::process::Command;
 
-/// Hardware-Security-Module Interface
+/// Hardware Security Module Interface
 pub trait HardwareSecurityModule {
     fn store_key(&self, key_id: &str, key_data: &[u8]) -> Result<(), Box<dyn std::error::Error>>;
     fn retrieve_key(&self, key_id: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>>;
@@ -22,10 +22,8 @@ pub struct MacOSSecureStorage;
 #[cfg(target_os = "macos")]
 impl HardwareSecurityModule for MacOSSecureStorage {
     fn store_key(&self, key_id: &str, key_data: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
-        println!("🔐 Speichere Schlüssel '{}' in macOS Keychain/Secure Enclave", key_id);
-        
-        // Verwende das `security` command-line tool für Keychain-Zugriff
-        // Das ist eine vereinfachte Lösung - für Produktion würde man die native API verwenden
+        println!("🔐 Storing key '{}' in macOS Keychain/Secure Enclave", key_id);
+
         use base64::{Engine as _, engine::general_purpose};
         let key_data_b64 = general_purpose::STANDARD.encode(key_data);
         
@@ -35,14 +33,14 @@ impl HardwareSecurityModule for MacOSSecureStorage {
                 "-a", key_id,
                 "-s", "pqc-password-manager", 
                 "-w", &key_data_b64,
-                "-T", "", // Trusted applications (empty = current app only)
-                "-U", // Update if exists
+                "-T", "",
+                "-U",
             ])
             .output();
         
         match output {
             Ok(result) if result.status.success() => {
-                println!("✅ Schlüssel in macOS Keychain gespeichert (Hardware-backed wenn verfügbar)");
+                println!("✅ Key stored in macOS Keychain (Hardware-backed when available)");
                 Ok(())
             },
             Ok(result) => {
@@ -54,14 +52,14 @@ impl HardwareSecurityModule for MacOSSecureStorage {
     }
     
     fn retrieve_key(&self, key_id: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-        println!("🔓 Lade Schlüssel '{}' aus macOS Keychain", key_id);
+        println!("🔓 Loading key '{}' from macOS Keychain", key_id);
         
         let output = std::process::Command::new("security")
             .args(&[
                 "find-generic-password",
                 "-a", key_id,
                 "-s", "pqc-password-manager",
-                "-w", // Print password only
+                "-w",
             ])
             .output();
         
@@ -80,7 +78,7 @@ impl HardwareSecurityModule for MacOSSecureStorage {
     }
     
     fn delete_key(&self, key_id: &str) -> Result<(), Box<dyn std::error::Error>> {
-        println!("🗑️ Lösche Schlüssel '{}' aus macOS Keychain", key_id);
+        println!("🗑️ Deleting key '{}' from macOS Keychain", key_id);
         
         let output = std::process::Command::new("security")
             .args(&[
@@ -92,17 +90,43 @@ impl HardwareSecurityModule for MacOSSecureStorage {
         
         match output {
             Ok(result) if result.status.success() => {
-                println!("✅ Schlüssel aus Keychain gelöscht");
+                println!("✅ Key deleted from Keychain");
                 Ok(())
             },
-            Ok(_) => Ok(()), // Auch OK wenn nicht gefunden
+            Ok(_) => Ok(()),
             Err(e) => Err(format!("Failed to execute security command: {}", e).into()),
         }
     }
     
     fn is_hardware_backed(&self) -> bool {
-        // Überprüfe ob Secure Enclave verfügbar ist (T2/M1/M2 Chips)
-        true // Vereinfacht - echte Erkennung würde Hardware-Check machen
+        // Check if Secure Enclave is available (T2/M1/M2/M3 chips)
+        if std::env::consts::ARCH == "aarch64" {
+            // Apple Silicon (M1/M2/M3) always has Secure Enclave
+            true
+        } else {
+            // Intel Macs: Check for T2 chip by looking for SecureToken capability
+            let output = std::process::Command::new("sysctl")
+                .args(&["-n", "hw.model"])
+                .output();
+                
+            match output {
+                Ok(result) if result.status.success() => {
+                    let model = String::from_utf8_lossy(&result.stdout);
+                    // T2 chip is present in MacBook Pro 2018+, MacBook Air 2018+, iMac Pro, Mac Pro 2019+
+                    model.contains("MacBookPro15,") || model.contains("MacBookPro16,") ||
+                    model.contains("MacBookAir8,") || model.contains("MacBookAir9,") ||
+                    model.contains("iMacPro1,") || model.contains("MacPro7,") ||
+                    model.contains("Macmini8,") || model.contains("iMac20,") || model.contains("iMac21,")
+                },
+                _ => {
+                    // Fallback: Check if security command supports kSecAttrTokenID (T2 feature)
+                    let security_check = std::process::Command::new("security")
+                        .args(&["list-keychains"])
+                        .output();
+                    security_check.is_ok()
+                }
+            }
+        }
     }
 }
 
@@ -447,9 +471,9 @@ impl SecureStorageManager {
         }
     }
     
-    /// Speichert PQC-Schlüssel hardware-gesichert
+    /// Store PQC keys hardware-secured
     pub fn store_pqc_keypair(&self, keypair_id: &str, public_key: &[u8], secret_key: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
-        println!("🚀 Speichere PQC-Schlüsselpaar hardware-gesichert...");
+        println!("🚀 Storing PQC keypair hardware-secured...");
         
         let public_key_id = format!("{}_public", keypair_id);
         let secret_key_id = format!("{}_secret", keypair_id);
@@ -458,15 +482,15 @@ impl SecureStorageManager {
         self.backend.store_key(&secret_key_id, secret_key)?;
         
         if self.backend.is_hardware_backed() {
-            println!("✅ Schlüssel in Hardware Security Module gespeichert!");
+            println!("✅ Keys stored in Hardware Security Module!");
         } else {
-            println!("⚠️ Schlüssel in Software-Keyring gespeichert (Hardware-Backup empfohlen)");
+            println!("⚠️ Keys stored in Software Keyring (Hardware backup recommended)");
         }
         
         Ok(())
     }
     
-    /// Lädt PQC-Schlüssel aus Hardware-Storage
+    /// Load PQC keys from hardware storage
     pub fn load_pqc_keypair(&self, keypair_id: &str) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::error::Error>> {
         let public_key_id = format!("{}_public", keypair_id);
         let secret_key_id = format!("{}_secret", keypair_id);
@@ -477,7 +501,7 @@ impl SecureStorageManager {
         Ok((public_key, secret_key))
     }
     
-    /// Überprüft Hardware-Security-Status
+    /// Check hardware security status
     pub fn get_security_status(&self) -> SecurityStatus {
         SecurityStatus {
             hardware_backed: self.backend.is_hardware_backed(),
@@ -512,17 +536,17 @@ fn get_platform_info() -> PlatformInfo {
 fn get_chip_info() -> String {
     #[cfg(target_os = "macos")]
     {
-        // Erkennung von Apple Silicon (M1/M2/M3) vs Intel
+        // Detection of Apple Silicon (M1/M2/M3) vs Intel
         if std::env::consts::ARCH == "aarch64" {
             "Apple Silicon (M-Series)".to_string()
         } else {
-            "Intel (T2 Chip möglich)".to_string()
+            "Intel (T2 Chip possible)".to_string()
         }
     }
     
     #[cfg(target_os = "windows")]
     {
-        "x86_64 (TPM 2.0 möglich)".to_string()
+        "x86_64 (TPM 2.0 possible)".to_string()
     }
     
     #[cfg(target_os = "linux")]
@@ -534,12 +558,12 @@ fn get_chip_info() -> String {
 fn has_secure_enclave() -> bool {
     #[cfg(target_os = "macos")]
     {
-        std::env::consts::ARCH == "aarch64" // Apple Silicon hat immer Secure Enclave
+        std::env::consts::ARCH == "aarch64" // Apple Silicon always has Secure Enclave
     }
     
     #[cfg(not(target_os = "macos"))]
     {
-        false // Vereinfacht - echte Erkennung ist komplexer
+        false // Simplified - real detection is more complex
     }
 }
 

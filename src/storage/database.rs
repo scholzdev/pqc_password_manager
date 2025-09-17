@@ -7,14 +7,14 @@ pub struct Database {
 
 #[derive(Debug)]
 pub struct PasswordEntry {
-    pub encrypted_name: Vec<u8>,        // Now encrypted!
-    pub encrypted_username: Vec<u8>,    // Now encrypted!
+    pub encrypted_name: Vec<u8>, 
+    pub encrypted_username: Vec<u8>,
     pub encrypted_password: Vec<u8>,
-    pub encrypted_url: Vec<u8>,         // Now encrypted!
+    pub encrypted_url: Vec<u8>,
     pub nonce: Vec<u8>,
     pub shared_secret: Vec<u8>,
-    pub created_at: String,             // Keep timestamp for sorting/rotation
-    pub search_hash: String,            // Searchable hash of name for lookups
+    pub created_at: String,
+    pub search_hash: String,
 }
 
 #[derive(Debug)]

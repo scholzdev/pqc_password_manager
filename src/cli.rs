@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "pqc-password-manager")]
-#[command(about = "Ein Post-Quantum-Cryptography sicherer Passwort-Manager")]
+#[command(about = "A Post-Quantum-Cryptography secure password manager")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -10,32 +10,32 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Initialisiert den Passwort-Manager mit einem Master-Passwort
+    /// Initialize the password manager with a master password
     Init,
-    /// Füge ein neues Passwort hinzu
+    /// Add a new password
     Add {
-        /// Name/Service für das Passwort
+        /// Name/Service for the password
         name: String,
-        /// Benutzername (optional)
+        /// Username (optional)
         #[arg(short = 'u', long)]
         username: Option<String>,
         /// URL/Website (optional)
         #[arg(short = 'l', long)]
         url: Option<String>,
     },
-    /// Zeige ein gespeichertes Passwort an
+    /// Show a stored password
     Get {
-        /// Name des Services
+        /// Service name
         name: String,
     },
-    /// Liste alle gespeicherten Services auf
+    /// List all stored services
     List,
-    /// Lösche einen Eintrag
+    /// Delete an entry
     Delete {
-        /// Name des Services
+        /// Service name
         name: String,
     },
-    /// Ändere das Master-Passwort
+    /// Change the master password
     ChangeMaster,
     /// Benchmark KDF parameters for optimal security/performance balance
     BenchmarkKdf,

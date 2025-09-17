@@ -111,41 +111,41 @@ impl SecurityMonitor {
             .filter(|e| matches!(e, SecurityEvent::SuspiciousActivity { .. }))
             .count();
         
-        report.push_str(&format!("📊 Statistik:\n"));
-        report.push_str(&format!("   Gesamt Events: {}\n", total_events));
-        report.push_str(&format!("   Fehlgeschlagene Logins: {}\n", auth_failures));
-        report.push_str(&format!("   Verdächtige Aktivitäten: {}\n", suspicious_activities));
+        report.push_str(&format!("📊 Statistics:\n"));
+        report.push_str(&format!("   Total Events: {}\n", total_events));
+        report.push_str(&format!("   Failed Logins: {}\n", auth_failures));
+        report.push_str(&format!("   Suspicious Activities: {}\n", suspicious_activities));
         
         if let Some(last) = self.last_success {
             let days_ago = (current_timestamp() - last) / (24 * 60 * 60);
-            report.push_str(&format!("   Letzter erfolgreicher Login: vor {} Tagen\n", days_ago));
+            report.push_str(&format!("   Last Successful Login: {} days ago\n", days_ago));
         }
         
         report.push_str("\n");
         
-        // Aktuelle Warnungen
+        // Current warnings
         if !self.failed_attempts.is_empty() {
-            report.push_str("⚠️  AKTUELLE WARNUNGEN:\n");
+            report.push_str("⚠️  CURRENT WARNINGS:\n");
             for (source, attempts) in &self.failed_attempts {
                 if *attempts >= 3 {
-                    report.push_str(&format!("   {} Fehlversuche von {}\n", attempts, source));
+                    report.push_str(&format!("   {} failed attempts from {}\n", attempts, source));
                 }
             }
             report.push_str("\n");
         }
         
-        // Empfehlungen
-        report.push_str("💡 EMPFEHLUNGEN:\n");
+        // Recommendations
+        report.push_str("💡 RECOMMENDATIONS:\n");
         if auth_failures > 0 {
-            report.push_str("   • Multi-Faktor-Authentifizierung aktivieren\n");
-            report.push_str("   • Stärkeres Master-Passwort verwenden\n");
+            report.push_str("   • Enable Multi-Factor Authentication\n");
+            report.push_str("   • Use stronger master password\n");
         }
         if suspicious_activities > 0 {
-            report.push_str("   • Logs regelmäßig überprüfen\n");
-            report.push_str("   • Backup-Wiederherstellung testen\n");
+            report.push_str("   • Check logs regularly\n");
+            report.push_str("   • Test backup recovery\n");
         }
-        report.push_str("   • Regelmäßige Passwort-Rotation\n");
-        report.push_str("   • Software-Updates installieren\n");
+        report.push_str("   • Regular password rotation\n");
+        report.push_str("   • Install software updates\n");
         
         report
     }
@@ -155,47 +155,47 @@ impl SecurityMonitor {
 pub struct IncidentResponse;
 
 impl IncidentResponse {
-    /// Generiert E-Mail-Template für Sicherheitsvorfall
+    /// Generate email template for security incident
     pub fn generate_incident_email(incident_type: &str, details: &str) -> String {
-        format!("Betreff: 🚨 SICHERHEITSVORFALL - Sofortige Maßnahmen erforderlich\n\n\
-Liebe/r Nutzer/in,\n\n\
-wir haben einen Sicherheitsvorfall in Ihrem PQC-Passwort-Manager entdeckt:\n\n\
-VORFALL: {}\n\
+        format!("Subject: 🚨 SECURITY INCIDENT - Immediate Action Required\n\n\
+Dear User,\n\n\
+We have detected a security incident in your PQC Password Manager:\n\n\
+INCIDENT: {}\n\
 DETAILS: {}\n\
-ZEITPUNKT: {}\n\n\
-SOFORTIGE MASSNAHMEN:\n\
-1. ✅ Master-Passwort SOFORT ändern\n\
-2. ✅ Alle gespeicherten Passwörter überprüfen und bei Verdacht ändern\n\
-3. ✅ Verdächtige Login-Aktivitäten in anderen Accounts prüfen\n\
-4. ✅ Backup erstellen (falls nicht vorhanden)\n\n\
-EMPFOHLENE LANGFRISTIGE MASSNAHMEN:\n\
-• Multi-Faktor-Authentifizierung für alle wichtigen Accounts\n\
-• Regelmäßige Passwort-Rotation (alle 90 Tage)\n\
-• Verwendung eines Hardware-Security-Keys\n\
-• Regelmäßige Sicherheitsupdates\n\n\
-Bei Fragen oder Verdacht auf Kompromittierung wenden Sie sich an:\n\
+TIMESTAMP: {}\n\n\
+IMMEDIATE ACTIONS:\n\
+1. ✅ Change master password IMMEDIATELY\n\
+2. ✅ Review all stored passwords and change if suspicious\n\
+3. ✅ Check for suspicious login activities in other accounts\n\
+4. ✅ Create backup (if not already available)\n\n\
+RECOMMENDED LONG-TERM MEASURES:\n\
+• Multi-Factor Authentication for all important accounts\n\
+• Regular password rotation (every 90 days)\n\
+• Use of Hardware Security Key\n\
+• Regular security updates\n\n\
+For questions or suspected compromise, contact:\n\
 support@pqc-password-manager.com\n\n\
-Mit freundlichen Grüßen,\n\
-Das Sicherheitsteam\n\n\
+Best regards,\n\
+The Security Team\n\n\
 ---\n\
-Diese Nachricht wurde automatisch generiert.",
+This message was automatically generated.",
             incident_type, details, format_timestamp(current_timestamp()))
     }
     
-    /// Checkliste für Incident Response
+    /// Checklist for Incident Response
     pub fn print_incident_checklist() {
-        println!("🚨 INCIDENT RESPONSE CHECKLISTE");
-        println!("================================");
-        println!("□ 1. Vorfall dokumentieren und klassifizieren");
-        println!("□ 2. Betroffene Systeme isolieren");
-        println!("□ 3. Forensische Kopien erstellen");
-        println!("□ 4. Nutzer benachrichtigen");
-        println!("□ 5. Schwachstelle identifizieren und schließen");
-        println!("□ 6. Systeme wiederherstellen");
-        println!("□ 7. Monitoring verstärken");
-        println!("□ 8. Post-Incident-Review durchführen");
-        println!("□ 9. Dokumentation aktualisieren");
-        println!("□ 10. Präventive Maßnahmen implementieren");
+        println!("🚨 INCIDENT RESPONSE CHECKLIST");
+        println!("===============================");
+        println!("□ 1. Document and classify incident");
+        println!("□ 2. Isolate affected systems");
+        println!("□ 3. Create forensic copies");
+        println!("□ 4. Notify users");
+        println!("□ 5. Identify and close vulnerability");
+        println!("□ 6. Restore systems");
+        println!("□ 7. Strengthen monitoring");
+        println!("□ 8. Conduct post-incident review");
+        println!("□ 9. Update documentation");
+        println!("□ 10. Implement preventive measures");
     }
 }
 
@@ -209,6 +209,6 @@ fn current_timestamp() -> u64 {
 fn format_timestamp(timestamp: u64) -> String {
     use std::time::{Duration, UNIX_EPOCH};
     let datetime = UNIX_EPOCH + Duration::from_secs(timestamp);
-    format!("{:?}", datetime) // Vereinfacht - in Produktion bessere Formatierung
+    format!("{:?}", datetime)
 }
 

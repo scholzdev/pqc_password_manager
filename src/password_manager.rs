@@ -26,38 +26,38 @@ impl PasswordManager {
         }
     }
 
-    /// Initialisiert den Passwort-Manager
+    /// Initialize the password manager
     pub fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         if self.db.is_initialized() {
-            return Err("Passwort-Manager ist bereits initialisiert!".into());
+            return Err("Password manager is already initialized!".into());
         }
 
-        println!("🔐 Initialisiere Post-Quantum-Cryptography sicheren Passwort-Manager...");
+        println!("🔐 Initializing Post-Quantum-Cryptography secure password manager...");
         
-        let master_password = self.prompt_password("Master-Passwort festlegen: ")?;
+        let master_password = self.prompt_password("Set master password: ")?;
         
         if master_password.len() < 8 {
-            return Err("Master-Passwort muss mindestens 8 Zeichen lang sein!".into());
+            return Err("Master password must be at least 8 characters long!".into());
         }
 
-        // Kyber Schlüsselpaar generieren
+        // Generate Kyber keypair
         let keypair = generate_keypair()?;
         self.public_key = Some(keypair.public);
         self.secret_key = Some(keypair.secret);
 
-        // Datenbank initialisieren
+        // Initialize database
         self.db.initialize()?;
         
-        // Master-Passwort hashen und speichern
+        // Hash and store master password
         self.store_master_password(&master_password)?;
 
-        println!("✅ Passwort-Manager erfolgreich initialisiert!");
-        println!("🔐 Post-Quantum-Cryptography Schlüssel generiert (Kyber512)");
+        println!("✅ Password manager successfully initialized!");
+        println!("🔐 Post-Quantum-Cryptography keys generated (Kyber512)");
         
         Ok(())
     }
 
-    /// Speichert das Master-Passwort
+    /// Store the master password
     fn store_master_password(&self, password: &str) -> Result<(), Box<dyn std::error::Error>> {
         let salt = SaltString::generate(&mut ArgonOsRng);
         let argon2 = Argon2::default();
@@ -78,10 +78,10 @@ impl PasswordManager {
         Ok(())
     }
 
-    /// Verifiziert das Master-Passwort und lädt die Schlüssel
+    /// Verify the master password and load the keys
     pub fn unlock(&mut self, password: &str) -> Result<(), Box<dyn std::error::Error>> {
         let entry = self.db.load_master_password()
-            .map_err(|_| "Konnte Master-Passwort nicht laden. Ist der Manager initialisiert?")?;
+            .map_err(|_| "Could not load master password. Is the manager initialized?")?;
 
         let parsed_hash = match PasswordHash::new(&entry.password_hash) {
             Ok(hash) => hash,
@@ -90,12 +90,12 @@ impl PasswordManager {
 
         let argon2 = Argon2::default();
         if argon2.verify_password(password.as_bytes(), &parsed_hash).is_ok() {
-            // Öffentlichen Schlüssel aus Datenbank laden
+            // Load public key from database
             self.public_key = Some(public_key_from_bytes(&entry.public_key)?);
-            println!("🔓 Passwort-Manager entsperrt!");
+            println!("🔓 Password manager unlocked!");
             Ok(())
         } else {
-            Err("❌ Falsches Master-Passwort!".into())
+            Err("❌ Wrong master password!".into())
         }
     }
 
@@ -312,15 +312,15 @@ impl PasswordManager {
         Ok(())
     }
 
-    /// Ändert das Master-Passwort
+    /// Change the master password
     pub fn change_master_password(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         if self.public_key.is_none() {
-            return Err("Passwort-Manager ist nicht entsperrt!".into());
+            return Err("Password manager is not unlocked!".into());
         }
 
-        let current_password = self.prompt_password("Aktuelles Master-Passwort eingeben: ")?;
+        let current_password = self.prompt_password("Enter current master password: ")?;
         
-        // Aktuelles Passwort verifizieren
+        // Verify current password
         let entry = self.db.load_master_password()?;
         let parsed_hash = match PasswordHash::new(&entry.password_hash) {
             Ok(hash) => hash,
@@ -329,21 +329,21 @@ impl PasswordManager {
 
         let argon2 = Argon2::default();
         if argon2.verify_password(current_password.as_bytes(), &parsed_hash).is_err() {
-            return Err("❌ Falsches aktuelles Master-Passwort!".into());
+            return Err("❌ Wrong current master password!".into());
         }
 
-        let new_password = self.prompt_password("Neues Master-Passwort eingeben: ")?;
+        let new_password = self.prompt_password("Enter new master password: ")?;
         
         if new_password.len() < 8 {
-            return Err("Neues Master-Passwort muss mindestens 8 Zeichen lang sein!".into());
+            return Err("New master password must be at least 8 characters long!".into());
         }
 
-        // Nur Master-Passwort-Hash ändern, PQC-Schlüssel behalten
-        // (Die Passwörter sind mit PQC-Schlüsseln verschlüsselt, nicht direkt mit Master-Passwort)
+        // Only change master password hash, keep PQC keys
+        // (Passwords are encrypted with PQC keys, not directly with master password)
         self.store_master_password(&new_password)?;
 
-        println!("✅ Master-Passwort erfolgreich geändert!");
-        println!("🔐 Alle gespeicherten Passwörter bleiben verfügbar!");
+        println!("✅ Master password successfully changed!");
+        println!("🔐 All stored passwords remain available!");
         
         Ok(())
     }
@@ -644,14 +644,14 @@ impl PasswordManager {
         Ok(())
     }
 
-    /// Sichere Passwort-Eingabe
+    /// Secure password input
     fn prompt_password(&self, prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
         print!("{}", prompt);
         io::stdout().flush()?;
         
         let mut password = rpassword::read_password()?;
         
-        // Sicherstellen, dass das Passwort gelöscht wird
+        // Ensure the password is securely cleared
         let result = password.clone();
         password.zeroize();
         
