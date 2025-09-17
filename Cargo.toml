@@ -1,0 +1,70 @@
+[package]
+name = "pqc_password_manager"
+version = "0.1.0"
+edition = "2024"
+
+# Autorenangabe optional
+authors = ["Dein Name <email@example.com>"]
+description = "Ein PQC-sicherer Passwortmanager in Rust"
+license = "MIT"
+
+[dependencies]
+# CLI Parsing
+clap = { version = "4.2", features = ["derive"] }
+
+# Post-Quantum Cryptography (Kyber) - mit std feature
+pqc_kyber = { version = "0.7.0", features = ["kyber512", "std"] }
+
+# Symmetrische Verschlüsselung
+chacha20poly1305 = "0.10.0"
+
+# Key Derivation (Master Passwort -> Key)
+argon2 = "0.5.3"
+
+# Datenbank (optional, lokal)
+rusqlite = { version = "0.37.0", features = ["bundled"] }
+
+# Serialisierung
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Für sicheres Zufallszahlen
+rand = "0.8"
+
+# Base64 encoding
+base64 = "0.22"
+
+# Optional: für hex encoding / debugging
+hex = "0.4"
+
+# Für sicheres Passwort-Eingeben
+rpassword = "7.0"
+
+# Für Home-Directory-Erkennung
+dirs = "6.0.0"
+
+# Für sichere Memory-Handhabung
+zeroize = { version = "1.7", features = ["zeroize_derive"] }
+
+# Date/Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# TOTP Implementation
+hmac = "0.12"
+sha1 = "0.10"
+base32 = "0.4"
+url = "2.4"
+
+# Zusätzliche Sicherheits-Features
+totp-rs = "5.4"  # Für Time-based OTP (MFA)
+keyring = "2.0"  # Für OS-Keychain-Integration
+
+# Platform-spezifische Hardware Security
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = "2.9"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.52", features = ["Win32_Security_Credentials"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+secret-service = "3.0"
