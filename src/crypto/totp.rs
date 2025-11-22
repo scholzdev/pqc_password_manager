@@ -47,9 +47,9 @@ impl TotpConfig {
         // Dynamic truncation
         let offset = (hmac_result[19] & 0x0f) as usize;
         let code = ((hmac_result[offset] & 0x7f) as u32) << 24
-            | ((hmac_result[offset + 1] & 0xff) as u32) << 16
-            | ((hmac_result[offset + 2] & 0xff) as u32) << 8
-            | (hmac_result[offset + 3] & 0xff) as u32;
+            | (hmac_result[offset + 1] as u32) << 16
+            | (hmac_result[offset + 2] as u32) << 8
+            | hmac_result[offset + 3] as u32;
         
         let totp_code = code % 10_u32.pow(self.digits);
         Ok(format!("{:0width$}", totp_code, width = self.digits as usize))

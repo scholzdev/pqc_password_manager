@@ -161,9 +161,9 @@ impl PasswordManager {
             let nonce = nonce_from_slice(&entry.nonce);
             
             // Try to decrypt the name to see if it matches
-            if let Ok(decrypted_name_bytes) = decrypt_data(&cipher, nonce, &entry.encrypted_name) {
-                if let Ok(decrypted_name) = String::from_utf8(decrypted_name_bytes) {
-                    if decrypted_name == name {
+            if let Ok(decrypted_name_bytes) = decrypt_data(&cipher, nonce, &entry.encrypted_name)
+                && let Ok(decrypted_name) = String::from_utf8(decrypted_name_bytes)
+                    && decrypted_name == name {
                         // Found the matching entry, decrypt all fields
                         match decrypt_data(&cipher, nonce, &entry.encrypted_password) {
                             Ok(decrypted_password_bytes) => {
@@ -209,8 +209,6 @@ impl PasswordManager {
                             }
                         }
                     }
-                }
-            }
         }
         
         println!("❌ No entry found for '{}'!", name);
@@ -290,9 +288,9 @@ impl PasswordManager {
             let nonce = nonce_from_slice(&entry.nonce);
             
             // Try to decrypt the name to see if it matches
-            if let Ok(decrypted_name_bytes) = decrypt_data(&cipher, nonce, &entry.encrypted_name) {
-                if let Ok(decrypted_name) = String::from_utf8(decrypted_name_bytes) {
-                    if decrypted_name == name {
+            if let Ok(decrypted_name_bytes) = decrypt_data(&cipher, nonce, &entry.encrypted_name)
+                && let Ok(decrypted_name) = String::from_utf8(decrypted_name_bytes)
+                    && decrypted_name == name {
                         // Found the matching entry, delete by search hash
                         let deleted = self.db.delete_password(&entry.search_hash)?;
                         
@@ -304,8 +302,6 @@ impl PasswordManager {
                         
                         return Ok(());
                     }
-                }
-            }
         }
         
         println!("❌ No entry found for '{}'!", name);
@@ -515,9 +511,9 @@ impl PasswordManager {
             let nonce = nonce_from_slice(&entry.nonce);
             
             // Try to decrypt the name to see if it matches
-            if let Ok(decrypted_name_bytes) = decrypt_data(&cipher, nonce, &entry.encrypted_service_name) {
-                if let Ok(decrypted_name) = String::from_utf8(decrypted_name_bytes) {
-                    if decrypted_name == name {
+            if let Ok(decrypted_name_bytes) = decrypt_data(&cipher, nonce, &entry.encrypted_service_name)
+                && let Ok(decrypted_name) = String::from_utf8(decrypted_name_bytes)
+                    && decrypted_name == name {
                         // Found the matching entry, decrypt secret and generate code
                         let decrypted_secret = decrypt_data(&cipher, nonce, &entry.encrypted_secret)?;
                         
@@ -551,8 +547,6 @@ impl PasswordManager {
                         
                         return Ok(());
                     }
-                }
-            }
         }
         
         println!("❌ No TOTP entry found for '{}'!", name);
@@ -622,9 +616,9 @@ impl PasswordManager {
             let nonce = nonce_from_slice(&entry.nonce);
             
             // Try to decrypt the name to see if it matches
-            if let Ok(decrypted_name_bytes) = decrypt_data(&cipher, nonce, &entry.encrypted_service_name) {
-                if let Ok(decrypted_name) = String::from_utf8(decrypted_name_bytes) {
-                    if decrypted_name == name {
+            if let Ok(decrypted_name_bytes) = decrypt_data(&cipher, nonce, &entry.encrypted_service_name)
+                && let Ok(decrypted_name) = String::from_utf8(decrypted_name_bytes)
+                    && decrypted_name == name {
                         // Found the matching entry, delete by search hash
                         let deleted = self.db.delete_totp(&entry.search_hash)?;
                         
@@ -636,8 +630,6 @@ impl PasswordManager {
                         
                         return Ok(());
                     }
-                }
-            }
         }
         
         println!("❌ No TOTP entry found for '{}'!", name);

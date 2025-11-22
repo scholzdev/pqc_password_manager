@@ -28,7 +28,7 @@ impl HardwareSecurityModule for MacOSSecureStorage {
         let key_data_b64 = general_purpose::STANDARD.encode(key_data);
         
         let output = std::process::Command::new("security")
-            .args(&[
+            .args([
                 "add-generic-password",
                 "-a", key_id,
                 "-s", "pqc-password-manager", 
@@ -55,7 +55,7 @@ impl HardwareSecurityModule for MacOSSecureStorage {
         println!("🔓 Loading key '{}' from macOS Keychain", key_id);
         
         let output = std::process::Command::new("security")
-            .args(&[
+            .args([
                 "find-generic-password",
                 "-a", key_id,
                 "-s", "pqc-password-manager",
@@ -81,7 +81,7 @@ impl HardwareSecurityModule for MacOSSecureStorage {
         println!("🗑️ Deleting key '{}' from macOS Keychain", key_id);
         
         let output = std::process::Command::new("security")
-            .args(&[
+            .args([
                 "delete-generic-password",
                 "-a", key_id,
                 "-s", "pqc-password-manager",
@@ -106,7 +106,7 @@ impl HardwareSecurityModule for MacOSSecureStorage {
         } else {
             // Intel Macs: Check for T2 chip by looking for SecureToken capability
             let output = std::process::Command::new("sysctl")
-                .args(&["-n", "hw.model"])
+                .args(["-n", "hw.model"])
                 .output();
                 
             match output {
@@ -121,7 +121,7 @@ impl HardwareSecurityModule for MacOSSecureStorage {
                 _ => {
                     // Fallback: Check if security command supports kSecAttrTokenID (T2 feature)
                     let security_check = std::process::Command::new("security")
-                        .args(&["list-keychains"])
+                        .args(["list-keychains"])
                         .output();
                     security_check.is_ok()
                 }
@@ -457,6 +457,12 @@ pub struct SecureStorageManager {
     backend: WindowsSecureStorage,
     #[cfg(target_os = "linux")]
     backend: LinuxSecureStorage,
+}
+
+impl Default for SecureStorageManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SecureStorageManager {

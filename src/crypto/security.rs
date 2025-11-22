@@ -36,6 +36,12 @@ pub struct SecurityMonitor {
     last_success: Option<u64>,
 }
 
+impl Default for SecurityMonitor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SecurityMonitor {
     pub fn new() -> Self {
         Self {
@@ -111,7 +117,7 @@ impl SecurityMonitor {
             .filter(|e| matches!(e, SecurityEvent::SuspiciousActivity { .. }))
             .count();
         
-        report.push_str(&format!("📊 Statistics:\n"));
+        report.push_str(&"📊 Statistics:\n".to_string());
         report.push_str(&format!("   Total Events: {}\n", total_events));
         report.push_str(&format!("   Failed Logins: {}\n", auth_failures));
         report.push_str(&format!("   Suspicious Activities: {}\n", suspicious_activities));
@@ -121,7 +127,7 @@ impl SecurityMonitor {
             report.push_str(&format!("   Last Successful Login: {} days ago\n", days_ago));
         }
         
-        report.push_str("\n");
+        report.push('\n');
         
         // Current warnings
         if !self.failed_attempts.is_empty() {
@@ -131,7 +137,7 @@ impl SecurityMonitor {
                     report.push_str(&format!("   {} failed attempts from {}\n", attempts, source));
                 }
             }
-            report.push_str("\n");
+            report.push('\n');
         }
         
         // Recommendations

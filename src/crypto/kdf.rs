@@ -48,7 +48,7 @@ impl Pepper {
             // Try to load from macOS Keychain
             use base64::{Engine as _, engine::general_purpose};
             let output = std::process::Command::new("security")
-                .args(&[
+                .args([
                     "find-generic-password",
                     "-a", PEPPER_KEY_ID,
                     "-s", "pqc-password-manager-pepper",
@@ -60,13 +60,12 @@ impl Pepper {
                 Ok(result) if result.status.success() => {
                     let pepper_b64_string = String::from_utf8_lossy(&result.stdout);
                     let pepper_b64 = pepper_b64_string.trim();
-                    if let Ok(pepper_bytes) = general_purpose::STANDARD.decode(pepper_b64) {
-                        if pepper_bytes.len() == 32 {
+                    if let Ok(pepper_bytes) = general_purpose::STANDARD.decode(pepper_b64)
+                        && pepper_bytes.len() == 32 {
                             let mut pepper_array = [0u8; 32];
                             pepper_array.copy_from_slice(&pepper_bytes);
                             return Ok(Self { value: pepper_array });
                         }
-                    }
                 },
                 _ => {} // Fall through to generate new
             }
@@ -76,7 +75,7 @@ impl Pepper {
             let pepper_b64 = general_purpose::STANDARD.encode(&new_pepper.value);
             
             let _ = std::process::Command::new("security")
-                .args(&[
+                .args([
                     "add-generic-password",
                     "-a", PEPPER_KEY_ID,
                     "-s", "pqc-password-manager-pepper",
